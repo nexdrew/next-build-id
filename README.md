@@ -2,6 +2,11 @@
 
 > Override `next build` output to use a consistent build id
 
+[![Build Status](https://travis-ci.org/nexdrew/next-build-id.svg?branch=master)](https://travis-ci.org/nexdrew/next-build-id)
+[![Coverage Status](https://coveralls.io/repos/github/nexdrew/next-build-id/badge.svg?branch=master)](https://coveralls.io/github/nexdrew/next-build-id?branch=master)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
 Simple CLI and module that lets you define your own build id when using Next.js.
 
 This is necessary if you're running multiple instances of your Next.js app on different servers sitting behind a load balancer without session affinity. Otherwise, if your Next.js builds end up with different build ids, a client loading content from different servers can result in [this Next.js error](https://github.com/zeit/next.js/blob/52ccc14059673508803f96ef1c74eecdf27fe096/server/index.js#L444), which causes the app to blow up for that client.
@@ -67,12 +72,38 @@ If you are building a directory other than the project root, you can pass that a
 
 ## Module Usage
 
-This module exports a single function that accepts an options object and returns a `Promise` which, once resolved, indicates a successful overwrite with the id value used.
+This module exports a single function that accepts an options object and returns a `Promise`.
+
+The options supported are:
+
+- `dir` (string): the directory built by `next build`
+- `id` (string): define a custom id instead of deferring to `git rev-parse HEAD`
+
+The returned `Promise` resolves to a result object containing:
+
+- `inputDir` (string): the resolved path of the Next.js app
+- `outputDir` (string): the resolved path of the `next build` output
+- `id` (string): the build id used
+- `files` (array of strings): resolved paths of each file updated with the build id
+
+Example:
 
 ```js
 const nextBuildId = require('next-build-id')
 
-nextBuildId().then(result => console.log('success!'))
+const opts = {}
+// opts.dir = '/path/to/input/dir'
+// opts.id = 'my_custom_id'
+
+nextBuildId(opts).then(result => {
+  console.log('success!')
+  console.log('input dir:', result.inputDir)
+  console.log('output dir:', result.outputDir)
+  console.log('build id:', result.id)
+  console.log('updated files:', result.files)
+}).catch(err => {
+  console.error('you broke it', err)
+})
 ```
 
 ## Reference
@@ -80,3 +111,7 @@ nextBuildId().then(result => console.log('success!'))
 - [zeit/next.js#2978 (comment)](https://github.com/zeit/next.js/issues/2978#issuecomment-334849384)
 - [zeit/next.js#3299 (comment)](https://github.com/zeit/next.js/issues/3299#issuecomment-344973091)
 - ["Handle BUILD_ID Mismatch Error" on Next.js wiki](https://github.com/zeit/next.js/wiki/Handle-BUILD_ID-Mismatch-Error)
+
+## License
+
+ISC © Andrew Goode
