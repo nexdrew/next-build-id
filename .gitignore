@@ -1,0 +1,7 @@
+package-lock.json
+node_modules/
+.nyc_output/
+test/fixture/.next/
+test/fixture/nextoutput/
+test/fixture/next.config.js
+test/fixture2/.next/BUILD_ID

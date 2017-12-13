@@ -1,0 +1,50 @@
+{
+  "name": "next-build-id",
+  "version": "1.0.0",
+  "description": "Override `next build` output to use a consistent build id",
+  "main": "index.js",
+  "bin": "cli.js",
+  "files": [
+    "cli.js",
+    "index.js"
+  ],
+  "scripts": {
+    "pretest": "standard",
+    "test": "tap --cov test/test*.js",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nexdrew/next-build-id.git"
+  },
+  "keywords": [
+    "next",
+    "next.js",
+    "build",
+    "id",
+    "build-stats",
+    "BUILD_ID",
+    "fix",
+    "hack",
+    "cli"
+  ],
+  "author": "nexdrew",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nexdrew/next-build-id/issues"
+  },
+  "homepage": "https://github.com/nexdrew/next-build-id#readme",
+  "dependencies": {
+    "sywac": "^1.2.0"
+  },
+  "devDependencies": {
+    "coveralls": "^3.0.0",
+    "rimraf": "^2.6.2",
+    "standard": "^10.0.3",
+    "standard-version": "^4.2.0",
+    "tap": "^11.0.0"
+  }
+}

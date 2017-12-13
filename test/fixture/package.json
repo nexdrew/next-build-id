@@ -1,0 +1,17 @@
+{
+  "name": "fixture",
+  "version": "1.0.0",
+  "description": "Fixture web app, don't worry about it",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "next build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^4.2.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  }
+}
