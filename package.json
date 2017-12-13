@@ -11,7 +11,8 @@
   "scripts": {
     "pretest": "standard",
     "test": "tap --cov test/test*.js",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "release": "standard-version"
   },
   "engines": {
     "node": ">=4"
