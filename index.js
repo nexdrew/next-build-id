@@ -65,11 +65,11 @@ function determineBuildId (id, inputDir) {
   if (id) return Promise.resolve(id)
   return new Promise((resolve, reject) => {
     const cp = require('child_process')
-    cp.execFile('git', ['-C', inputDir, 'rev-parse', 'HEAD'], (err, stdout, stderr) => {
+    cp.execFile('git', [`--git-dir=${inputDir}/.git`, `--work-tree=${inputDir}`, 'rev-parse', 'HEAD'], (err, stdout, stderr) => {
       if (err) return reject(err)
       if (stderr) return reject(String(stderr).trim())
       if (stdout) return resolve(String(stdout).trim())
-      reject(`No output from command: git -C ${inputDir} rev-parse HEAD`)
+      reject(`No output from command: git --git-dir=${inputDir}/.git --work-tree=${inputDir} rev-parse HEAD`)
     })
   })
 }
