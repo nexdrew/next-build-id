@@ -43,8 +43,10 @@ function resolveOutputDir (inputDir) {
   // avoid slow require if file doesn't exist where it should
   if (fs.existsSync(nextConfigFile)) {
     try {
-      const nextConfig = require(nextConfigFile)
-      if (nextConfig && nextConfig.distDir) outputDir = nextConfig.distDir
+      const nextConfig = fs.readFileSync(nextConfigFile, 'utf8');
+      const matches = nextConfig.match(/distDir: ["']([^"']+)["']/);
+      if (matches && matches[1]) outputDir = matches[1];
+      console.log('outputDir:', outputDir);
     } catch (e) {}
   }
   outputDir = path.resolve(inputDir, outputDir)
