@@ -5,6 +5,20 @@ const path = require('path')
 
 const buildIdFiles = ['BUILD_ID', 'build-stats.json']
 
+// from https://github.com/zeit/next.js/blob/canary/server/config.js
+const defaultConfig = {
+  webpack: null,
+  webpackDevMiddleware: null,
+  poweredByHeader: true,
+  distDir: '.next',
+  assetPrefix: '',
+  configOrigin: 'default',
+  useFileSystemPublicRoutes: true,
+  generateBuildId: () => '9f2a37be-4545-445e-91bd-' + String(new Date().getTime()).slice(1, 13),
+  generateEtags: true,
+  pageExtensions: ['jsx', 'js']
+}
+
 module.exports = function nextBuildId (opts) {
   // TODO support opts.conf object similar to next(opts) ??
   opts = opts || {}
@@ -38,13 +52,17 @@ function resolveInputDir (dir) {
 }
 
 function resolveOutputDir (inputDir) {
-  let outputDir = '.next'
+  let outputDir = defaultConfig.distDir
   const nextConfigFile = path.join(inputDir, 'next.config.js')
   // avoid slow require if file doesn't exist where it should
   if (fs.existsSync(nextConfigFile)) {
     try {
-      const nextConfig = require(nextConfigFile)
-      if (nextConfig && nextConfig.distDir) outputDir = nextConfig.distDir
+      const userConfigModule = require(nextConfigFile)
+      let userConfig = userConfigModule.default || userConfigModule
+      if (typeof userConfigModule === 'function') {
+        userConfig = userConfigModule('phase-production-build', { defaultConfig })
+      }
+      if (userConfig && userConfig.distDir) outputDir = userConfig.distDir
     } catch (e) {}
   }
   outputDir = path.resolve(inputDir, outputDir)
