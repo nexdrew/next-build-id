@@ -14,7 +14,7 @@ const defaultConfig = {
   assetPrefix: '',
   configOrigin: 'default',
   useFileSystemPublicRoutes: true,
-  generateBuildId: () => '9f2a37be-4545-445e-91bd-' + String(new Date().getTime()).slice(1, 13),
+  // generateBuildId: () => '9f2a37be-4545-445e-91bd-' + String(new Date().getTime()).slice(1, 13),
   generateEtags: true,
   pageExtensions: ['jsx', 'js']
 }
