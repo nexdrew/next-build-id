@@ -14,7 +14,7 @@ const defaultConfig = {
   assetPrefix: '',
   configOrigin: 'default',
   useFileSystemPublicRoutes: true,
-  // generateBuildId: () => '9f2a37be-4545-445e-91bd-' + String(new Date().getTime()).slice(1, 13),
+  generateBuildId: () => '9f2a37be-4545-445e-91bd-' + String(new Date().getTime()).slice(1, 13),
   generateEtags: true,
   pageExtensions: ['jsx', 'js']
 }
@@ -26,19 +26,19 @@ module.exports = function nextBuildId (opts) {
   return resolveInputDir(opts.dir)
     .then(inputDir => {
       result.inputDir = inputDir
-      return resolveOutputDir(inputDir)
+      return opts.write && resolveOutputDir(inputDir)
     })
     .then(outputDir => {
-      result.outputDir = outputDir
-      return getFiles(outputDir)
+      result.outputDir = outputDir || null
+      return opts.write && getFiles(outputDir)
     })
     .then(files => {
-      result.files = files
+      result.files = files || null
       return determineBuildId(opts.id, result.inputDir)
     })
     .then(id => {
       result.id = id
-      return updateFiles(id, result.files)
+      return opts.write && updateFiles(id, result.files)
     })
     .then(() => result)
 }
