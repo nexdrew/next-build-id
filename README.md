@@ -9,12 +9,29 @@
 
 Simple CLI and module that lets you define your own build id when using Next.js.
 
-This is necessary if you're running multiple instances of your Next.js app on different servers sitting behind a load balancer without session affinity. Otherwise, if your Next.js builds end up with different build ids, a client loading content from different servers can result in [this Next.js error](https://github.com/zeit/next.js/blob/52ccc14059673508803f96ef1c74eecdf27fe096/server/index.js#L444), which causes the app to blow up for that client.
+## New in version 2!
+
+When using Next.js 6+ (which introduced the [generateBuildId](https://github.com/zeit/next.js#configuring-the-build-id) config prop), you can use `next-build-id` as a module within your next.config.js logic to set the BUILD_ID to the most recent git commit hash. This approach means you don't need to use the `next-build-id` CLI - just use `next build` as normal and you'll get the build id you want!
+
+```js
+// next.config.js
+const nextBuildId = require('next-build-id')
+module.exports = {
+  generateBuildId: async () => {
+    const fromGit = await nextBuildId({ dir: __dirname })
+    return fromGit.id
+  }
+}
+```
+
+## Intro
+
+This tool is necessary if you're running multiple instances of your Next.js app on different servers sitting behind a load balancer without session affinity. Otherwise, if your Next.js builds end up with different build ids, a client loading content from different servers can result in [this Next.js error](https://github.com/zeit/next.js/blob/52ccc14059673508803f96ef1c74eecdf27fe096/server/index.js#L444), which causes the app to blow up for that client.
 
 This module updates/overrides the following:
 
 - uuid defined in `.next/BUILD_ID`
-- hashes for all chunks defined in `.next/build-stats.json`
+- hashes for all chunks defined in `.next/build-stats.json` (Next.js 4 or below)
 
 By default, this CLI/module will overwrite those values with the hash of the latest git commit (`git rev-parse HEAD`), but it will also allow you to define your own id.
 
@@ -77,6 +94,7 @@ This module exports a single function that accepts an options object and returns
 The options supported are:
 
 - `dir` (string): the directory built by `next build`
+- `write` (boolean): whether to overwrite the BUILD_ID in the dist dir (not needed when using `generateBuildId` in next.config.js)
 - `id` (string): define a custom id instead of deferring to `git rev-parse HEAD`
 
 The returned `Promise` resolves to a result object containing:
@@ -93,6 +111,7 @@ const nextBuildId = require('next-build-id')
 
 const opts = {}
 // opts.dir = '/path/to/input/dir'
+// opts.write = true
 // opts.id = 'my_custom_id'
 
 nextBuildId(opts).then(result => {
@@ -108,6 +127,7 @@ nextBuildId(opts).then(result => {
 
 ## Reference
 
+- [zeit/next.js#786](https://github.com/zeit/next.js/issues/786)
 - [zeit/next.js#2978 (comment)](https://github.com/zeit/next.js/issues/2978#issuecomment-334849384)
 - [zeit/next.js#3299 (comment)](https://github.com/zeit/next.js/issues/3299#issuecomment-344973091)
 - ["Handle BUILD_ID Mismatch Error" on Next.js wiki](https://github.com/zeit/next.js/wiki/Handle-BUILD_ID-Mismatch-Error)
