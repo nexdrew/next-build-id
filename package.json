@@ -1,6 +1,6 @@
 {
   "name": "next-build-id",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Override `next build` output to use a consistent build id",
   "main": "index.js",
   "bin": "cli.js",
