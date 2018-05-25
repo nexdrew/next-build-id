@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/nexdrew/next-build-id/compare/v1.2.0...v2.0.0) (2018-05-25)
+
+
+### Features
+
+* use next-build-id as module within Next 6 generateBuildId function ([#6](https://github.com/nexdrew/next-build-id/issues/6)) ([502bccc](https://github.com/nexdrew/next-build-id/commit/502bccc))
+
+
+### BREAKING CHANGES
+
+* The next-build-id CLI has not changed, but module usage will no longer manually overwrite a BUILD_ID file unless a `write: true` option is given, so that the module can be used within generateBuildId from next.config.js to just lookup the current git commit hash.
+
+
+
 <a name="1.2.0"></a>
 # [1.2.0](https://github.com/nexdrew/next-build-id/compare/v1.1.0...v1.2.0) (2018-05-24)
 
