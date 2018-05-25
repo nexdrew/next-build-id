@@ -88,7 +88,7 @@ tap.test('supports custom --id', t => {
 
 tap.test('does not need git with custom --id', t => {
   return exec('npm', 'run build', fixturePath).then(() => {
-    return cli('--id 123456', fixturePath, '/dne')
+    return cli('--id 123456', fixturePath, { PATH: '/dne' })
   }).then(io => {
     t.notOk(io.err)
     t.notOk(io.stderr)

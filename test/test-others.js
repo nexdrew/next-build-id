@@ -21,7 +21,7 @@ tap.test('errs on invalid json', t => {
 })
 
 tap.test('errs on no git output', t => {
-  return cli('', path.resolve(__dirname, 'fixture3')).then(io => {
+  return cli('', path.resolve(__dirname, 'fixture3'), { NBI_TEST_FIXTURE: 'fixture3' }).then(io => {
     t.equal(io.err.code, 1)
     t.match(io.stderr, /No output from command: git/)
     t.notOk(io.stdout)
@@ -29,7 +29,7 @@ tap.test('errs on no git output', t => {
 })
 
 tap.test('errs without --id and without git', t => {
-  return cli('', path.resolve(__dirname, 'fixture3'), '/dne').then(io => {
+  return cli('', path.resolve(__dirname, 'fixture3'), { NBI_TEST_FIXTURE: 'fixture3', PATH: '/dne' }).then(io => {
     t.equal(io.err.code, 1)
     t.match(io.stderr, /Unexpected error/)
     t.notOk(io.stdout)

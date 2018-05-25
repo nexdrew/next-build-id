@@ -1,4 +1,12 @@
 #!/usr/bin/env node
-if (!String(process.argv[3]).includes('fixture3')) {
-  console.log('0123456789abcdef0123456789abcdef01234567')
-}
+
+// --git-dir=${inputDir}/.git --work-tree=${inputDir}
+require('sywac')
+  .dir('--git-dir <dir>', { mustExist: true })
+  .outputSettings({ showHelpOnError: false })
+  .parseAndExit()
+  .then(argv => {
+    if (!process.env.NBI_TEST_FIXTURE || !String(process.env.NBI_TEST_FIXTURE).includes('fixture3')) {
+      console.log('0123456789abcdef0123456789abcdef01234567')
+    }
+  })
