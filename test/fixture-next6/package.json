@@ -1,0 +1,17 @@
+{
+  "name": "fixture",
+  "version": "1.0.0",
+  "description": "Fixture to test against Next.js 6",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "next build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^6.0.3",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0"
+  }
+}

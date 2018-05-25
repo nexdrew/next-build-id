@@ -60,6 +60,7 @@ function writeTextFile (file, data) {
 
 module.exports = {
   exec,
+  mockedGitEnv,
   cli,
   readTextFile,
   readJsonFile,

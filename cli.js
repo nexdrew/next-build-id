@@ -13,6 +13,7 @@ require('sywac')
   .outputSettings({ maxWidth: 60 })
   .parseAndExit()
   .then(argv => {
+    argv.write = true
     argv.dir = path.resolve(process.cwd(), argv.dir || '.')
     const nextBuildId = require('./index')
     return nextBuildId(argv)
