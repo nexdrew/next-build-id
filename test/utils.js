@@ -21,14 +21,14 @@ function exec (file, args, cwd, env, alwaysResolve) {
   })
 }
 
-function mockedGitEnv (envPath) {
-  const env = Object.assign({}, process.env)
-  env.PATH = envPath || [__dirname].concat(env.PATH.split(path.delimiter)).join(path.delimiter)
-  return env
+function mockedGitEnv (env) {
+  env = env || {}
+  if (!env.PATH) env.PATH = [__dirname].concat(process.env.PATH.split(path.delimiter)).join(path.delimiter)
+  return Object.assign({}, process.env, env)
 }
 
-function cli (args, cwd, envPath) {
-  return exec(cliPath, args, cwd, mockedGitEnv(envPath), true)
+function cli (args, cwd, env) {
+  return exec(cliPath, args, cwd, mockedGitEnv(env), true)
 }
 
 function readTextFile (file) {
