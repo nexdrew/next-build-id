@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.1"></a>
+## [2.0.1](https://github.com/nexdrew/next-build-id/compare/v2.0.0...v2.0.1) (2018-05-25)
+
+
+### Bug Fixes
+
+* look for .git dir in parents of input dir ([#7](https://github.com/nexdrew/next-build-id/issues/7)) ([bcc374b](https://github.com/nexdrew/next-build-id/commit/bcc374b))
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/nexdrew/next-build-id/compare/v1.2.0...v2.0.0) (2018-05-25)
 
