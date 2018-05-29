@@ -1,0 +1,12 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "package.json",
+        "test/fixture-next5/package.json",
+        "test/fixture-next6/package.json",
+        "test/fixture/package.json"
+      ]
+    }
+  }
+}
