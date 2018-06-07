@@ -5,7 +5,8 @@
 [![Build Status](https://travis-ci.org/nexdrew/next-build-id.svg?branch=master)](https://travis-ci.org/nexdrew/next-build-id)
 [![Coverage Status](https://coveralls.io/repos/github/nexdrew/next-build-id/badge.svg?branch=master)](https://coveralls.io/github/nexdrew/next-build-id?branch=master)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org) [![Greenkeeper badge](https://badges.greenkeeper.io/nexdrew/next-build-id.svg)](https://greenkeeper.io/)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Greenkeeper badge](https://badges.greenkeeper.io/nexdrew/next-build-id.svg)](https://greenkeeper.io/)
 
 Simple CLI and module that lets you define your own build id when using Next.js.
 
