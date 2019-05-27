@@ -1,11 +1,9 @@
 {
   "name": "next-build-id",
   "version": "2.0.1",
-  "description": "Override `next build` output to use a consistent build id",
+  "description": "Use a consistent, git-based build id for your Next.js app",
   "main": "index.js",
-  "bin": "cli.js",
   "files": [
-    "cli.js",
     "index.js"
   ],
   "scripts": {
@@ -15,7 +13,7 @@
     "release": "standard-version"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=8"
   },
   "repository": {
     "type": "git",
@@ -26,11 +24,11 @@
     "next.js",
     "build",
     "id",
-    "build-stats",
     "BUILD_ID",
-    "fix",
-    "hack",
-    "cli"
+    "git",
+    "head",
+    "describe",
+    "tags"
   ],
   "author": "nexdrew",
   "license": "ISC",
@@ -38,9 +36,7 @@
     "url": "https://github.com/nexdrew/next-build-id/issues"
   },
   "homepage": "https://github.com/nexdrew/next-build-id#readme",
-  "dependencies": {
-    "sywac": "^1.2.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "coveralls": "^3.0.1",
     "rimraf": "^2.6.2",

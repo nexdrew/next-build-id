@@ -1,151 +1,176 @@
 'use strict'
 
+// eagerly load libs that are always used
 const fs = require('fs')
 const path = require('path')
 
-const buildIdFiles = ['BUILD_ID', 'build-stats.json']
-
-// from https://github.com/zeit/next.js/blob/canary/server/config.js
-const defaultConfig = {
-  webpack: null,
-  webpackDevMiddleware: null,
-  poweredByHeader: true,
-  distDir: '.next',
-  assetPrefix: '',
-  configOrigin: 'default',
-  useFileSystemPublicRoutes: true,
-  generateBuildId: () => '9f2a37be-4545-445e-91bd-' + String(new Date().getTime()).slice(1, 13),
-  generateEtags: true,
-  pageExtensions: ['jsx', 'js']
+// lazily load libs that might not be used (depending on async/sync and opts.describe)
+let _cp, _util
+function cp () {
+  if (!_cp) _cp = require('child_process')
+  return _cp
+}
+function util () {
+  if (!_util) _util = require('util')
+  return _util
 }
 
-module.exports = function nextBuildId (opts) {
-  // TODO support opts.conf object similar to next(opts) ??
-  opts = opts || {}
-  const result = {}
-  return resolveInputDir(opts.dir)
-    .then(inputDir => {
-      result.inputDir = inputDir
-      return opts.write && resolveOutputDir(inputDir)
-    })
-    .then(outputDir => {
-      result.outputDir = outputDir || null
-      return opts.write && getFiles(outputDir)
-    })
-    .then(files => {
-      result.files = files || null
-      return determineBuildId(opts.id, result.inputDir)
-    })
-    .then(id => {
-      result.id = id
-      return opts.write && updateFiles(id, result.files)
-    })
-    .then(() => result)
+// lazily load promisified functions that might not be used
+let _access, _execFile, _readFile
+function access () {
+  if (!_access) _access = util().promisify(fs.access)
+  return _access
+}
+function execFile () {
+  if (!_execFile) _execFile = util().promisify(cp().execFile)
+  return _execFile
+}
+function readFile () {
+  if (!_readFile) _readFile = util().promisify(fs.readFile)
+  return _readFile
 }
 
-/* eslint-disable prefer-promise-reject-errors */
-function resolveInputDir (dir) {
-  let inputDir = dir || '.'
-  if (!path.isAbsolute(inputDir)) inputDir = path.resolve(path.dirname(require.main.filename), inputDir)
-  if (!fs.existsSync(inputDir)) return Promise.reject(`Input directory does not exist: ${inputDir}`)
-  return Promise.resolve(inputDir)
+// functions to execute a git command
+function gitArgs (dir, args) {
+  return [`--git-dir=${path.join(dir, '.git')}`, `--work-tree=${dir}`].concat(args)
+}
+async function git (dir, args) {
+  const { stdout, stderr } = await execFile()('git', gitArgs(dir, args))
+  if (stderr) throw new Error(String(stderr).trim())
+  return String(stdout).trim()
+}
+function gitSync (dir, args) {
+  const stdout = cp().execFileSync('git', gitArgs(dir, args))
+  return String(stdout).trim()
 }
 
-function resolveOutputDir (inputDir) {
-  let outputDir = defaultConfig.distDir
-  const nextConfigFile = path.join(inputDir, 'next.config.js')
-  // avoid slow require if file doesn't exist where it should
-  if (fs.existsSync(nextConfigFile)) {
+// functions to read a file
+function pathToGitFile (dir, filename) {
+  return path.join(dir, '.git', filename)
+}
+async function readGitFile (dir, filename) {
+  const data = await readFile()(pathToGitFile(dir, filename), 'utf8')
+  return String(data).trim()
+}
+function readGitFileSync (dir, filename) {
+  const data = fs.readFileSync(pathToGitFile(dir, filename), 'utf8')
+  return String(data).trim()
+}
+
+function getOpts (opts) {
+  return { fallbackToSha: true, ...opts }
+}
+
+// valid opts:
+// - dir (string): in case `process.cwd()` isn't suitable
+// - describe (boolean): use `git describe --tags` instead of `git rev-parse HEAD`
+// - fallbackToSha (boolean): if opts.describe and no tags found, fallback to latest commit sha
+const nextBuildId = async opts => {
+  opts = getOpts(opts)
+
+  const inputDir = path.resolve(process.cwd(), opts.dir || '.')
+  let dir = inputDir
+
+  // dir may not be the project root so look for .git dir in parent dirs too
+  const root = path.parse(dir).root
+  let attempts = 0 // protect against infinite tight loop if libs misbehave
+  while (dir !== root && attempts < 999) {
+    attempts++
     try {
-      const userConfigModule = require(nextConfigFile)
-      let userConfig = userConfigModule.default || userConfigModule
-      if (typeof userConfigModule === 'function') {
-        userConfig = userConfigModule('phase-production-build', { defaultConfig })
-      }
-      if (userConfig && userConfig.distDir) outputDir = userConfig.distDir
-    } catch (e) {}
-  }
-  outputDir = path.resolve(inputDir, outputDir)
-  if (!fs.existsSync(outputDir)) return Promise.reject(`Output directory does not exist: ${outputDir}`)
-  return Promise.resolve(outputDir)
-}
-
-function getFiles (outputDir) {
-  const files = buildIdFiles.map(file => {
-    file = path.join(outputDir, file)
-    return fs.existsSync(file) ? file : null
-  }).filter(Boolean)
-  if (!files.length) return Promise.reject(`Could not find ${buildIdFiles.join(' or ')} in output directory: ${outputDir}`)
-  return Promise.resolve(files)
-}
-
-function determineBuildId (id, inputDir) {
-  if (id) return Promise.resolve(id)
-  return new Promise((resolve, reject) => {
-    const cp = require('child_process')
-
-    // inputDir may not be the project root so look for .git dir in parent dirs too
-    let dir = inputDir
-    const root = path.parse(dir).root
-    let attempts = 0 // protect against infinite tight loop if libs misbehave
-    while (dir !== root && attempts < 999) {
-      attempts++
-      try {
-        fs.accessSync(path.join(dir, '.git'), (fs.constants || fs).R_OK)
-        break
-      } catch (_) {
-        dir = path.dirname(dir)
-      }
+      await access()(path.join(dir, '.git'), fs.constants.R_OK)
+      break
+    } catch (_) {
+      dir = path.dirname(dir)
     }
-    if (dir === root || attempts >= 999) dir = inputDir
+  }
+  if (dir === root || attempts >= 999) dir = inputDir
 
-    cp.execFile('git', [`--git-dir=${path.join(dir, '.git')}`, `--work-tree=${dir}`, 'rev-parse', 'HEAD'], (err, stdout, stderr) => {
-      if (err) return reject(err)
-      if (stderr) return reject(String(stderr).trim())
-      if (stdout) return resolve(String(stdout).trim())
-      reject(`No output from command: git --git-dir=${path.join(dir, '.git')} --work-tree=${dir} rev-parse HEAD`)
-    })
-  })
+  // if opts.describe, use `git describe --tags`
+  let id
+  if (opts.describe) {
+    try {
+      id = await git(dir, ['describe', '--tags'])
+      if (!id) throw new Error('Output of `git describe --tags` was empty!')
+      return id
+    } catch (err) {
+      if (!opts.fallbackToSha) throw err
+    }
+  }
+
+  // try file system, suggestion by @sheerun here: https://github.com/nexdrew/next-build-id/issues/17#issuecomment-482799872
+  // 1. read .git/HEAD to find out ref, the result is something like `ref: refs/heads/master`
+  // 2. read this file to find our current commit (e.g. .git/refs/heads/master)
+  try {
+    const head = await readGitFile(dir, 'HEAD')
+    let refi = head.indexOf('ref:')
+    if (refi === -1) refi = 0
+    let endi = head.indexOf('\n', refi + 4) + 1
+    const ref = head.slice(refi + 4, endi || undefined).trim()
+    if (ref) {
+      id = await readGitFile(dir, ref)
+      if (id) return id
+    }
+  } catch (_) {}
+
+  // fallback to `git rev-parse HEAD`
+  id = await git(dir, ['rev-parse', 'HEAD'])
+  if (!id) throw new Error('Output of `git rev-parse HEAD` was empty!')
+
+  return id
 }
 
-function updateFiles (id, files) {
-  return Promise.all(files.map(file => {
-    return path.extname(file) === '.json' ? updateJsonFile(id, file) : updateTextFile(id, file)
-  }))
+nextBuildId.sync = opts => {
+  opts = getOpts(opts)
+
+  const inputDir = path.resolve(process.cwd(), opts.dir || '.')
+  let dir = inputDir
+
+  // dir may not be the project root so look for .git dir in parent dirs too
+  const root = path.parse(dir).root
+  let attempts = 0 // protect against infinite tight loop if libs misbehave
+  while (dir !== root && attempts < 999) {
+    attempts++
+    try {
+      fs.accessSync(path.join(dir, '.git'), fs.constants.R_OK)
+      break
+    } catch (_) {
+      dir = path.dirname(dir)
+    }
+  }
+  if (dir === root || attempts >= 999) dir = inputDir
+
+  // if opts.describe, use `git describe --tags`
+  let id
+  if (opts.describe) {
+    try {
+      id = gitSync(dir, ['describe', '--tags'])
+      if (!id) throw new Error('Output of `git describe --tags` was empty!')
+      return id
+    } catch (err) {
+      if (!opts.fallbackToSha) throw err
+    }
+  }
+
+  // try file system, suggestion by @sheerun here: https://github.com/nexdrew/next-build-id/issues/17#issuecomment-482799872
+  // 1. read .git/HEAD to find out ref, the result is something like `ref: refs/heads/master`
+  // 2. read this file to find our current commit (e.g. .git/refs/heads/master)
+  try {
+    const head = readGitFileSync(dir, 'HEAD')
+    let refi = head.indexOf('ref:')
+    if (refi === -1) refi = 0
+    let endi = head.indexOf('\n', refi + 4) + 1
+    const ref = head.slice(refi + 4, endi || undefined).trim()
+    if (ref) {
+      id = readGitFileSync(dir, ref)
+      if (id) return id
+    }
+  } catch (_) {}
+
+  // fallback to `git rev-parse HEAD`
+  id = gitSync(dir, ['rev-parse', 'HEAD'])
+  if (!id) throw new Error('Output of `git rev-parse HEAD` was empty!')
+
+  return id
 }
 
-function updateJsonFile (id, file) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(file, 'utf8', (err, data) => {
-      if (err) return reject(err)
-      let write = false
-      let json
-      try {
-        json = JSON.parse(data)
-      } catch (e) {
-        return reject(e)
-      }
-      Object.keys(json).forEach(key => {
-        if (json[key] && json[key].hash) {
-          write = true
-          json[key].hash = id
-        }
-      })
-      if (!write) return reject(`No hash values found in ${file}`)
-      fs.writeFile(file, JSON.stringify(json), error => {
-        if (error) return reject(error)
-        resolve()
-      })
-    })
-  })
-}
-
-function updateTextFile (id, file) {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(file, id, err => {
-      if (err) return reject(err)
-      resolve()
-    })
-  })
-}
-/* eslint-enable prefer-promise-reject-errors */
+module.exports = nextBuildId
