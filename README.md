@@ -1,6 +1,6 @@
 # next-build-id
 
-> Override `next build` output to use a consistent build id
+> Use a consistent, git-based build id for your Next.js app
 
 [![Build Status](https://travis-ci.org/nexdrew/next-build-id.svg?branch=master)](https://travis-ci.org/nexdrew/next-build-id)
 [![Coverage Status](https://coveralls.io/repos/github/nexdrew/next-build-id/badge.svg?branch=master)](https://coveralls.io/github/nexdrew/next-build-id?branch=master)
@@ -8,123 +8,66 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Greenkeeper badge](https://badges.greenkeeper.io/nexdrew/next-build-id.svg)](https://greenkeeper.io/)
 
-Simple CLI and module that lets you define your own build id when using Next.js.
+Small package to generate a consistent, git-based build id for your Next.js app when running `next build` on each server in a multi-server deployment.
 
-## New in version 2!
+This module exports a function that you can use as your [generateBuildId](https://github.com/zeit/next.js#configuring-the-build-id) config option in next.config.js.
 
-When using Next.js 6+ (which introduced the [generateBuildId](https://github.com/zeit/next.js#configuring-the-build-id) config prop), you can use `next-build-id` as a module within your next.config.js logic to set the BUILD_ID to the most recent git commit hash. This approach means you don't need to use the `next-build-id` CLI - just use `next build` as normal and you'll get the build id you want!
+By default, it will use the latest git commit hash from the local git repository (equivalent of `git rev-parse HEAD`):
 
 ```js
 // next.config.js
 const nextBuildId = require('next-build-id')
 module.exports = {
-  generateBuildId: async () => {
-    const fromGit = await nextBuildId({ dir: __dirname })
-    return fromGit.id
-  }
+  generateBuildId: () => nextBuildId({ dir: __dirname })
 }
+// => 'f9fc968afa249d162c924a8d5b4ce6562c164c2e'
 ```
 
-## Intro
+If you'd rather use a build id relative to the most recent tag in your git repo, pass `describe: true` as an option and the output of `git describe --tags` will be used instead:
 
-This tool is necessary if you're running multiple instances of your Next.js app on different servers sitting behind a load balancer without session affinity. Otherwise, if your Next.js builds end up with different build ids, a client loading content from different servers can result in [this Next.js error](https://github.com/zeit/next.js/blob/52ccc14059673508803f96ef1c74eecdf27fe096/server/index.js#L444), which causes the app to blow up for that client.
+```js
+// next.config.js
+const nextBuildId = require('next-build-id')
+module.exports = {
+  generateBuildId: () => nextBuildId({ dir: __dirname, describe: true })
+}
+// => 'v1.0.0' (no changes since v1.0.0 tag)
+// => 'v1.0.0-19-ga8f7eee' (19 changes since v1.0.0 tag)
+```
 
-This module updates/overrides the following:
+This module also exposes a synchronous version for custom needs, e.g. passing the build id directly to a Sentry configuration. Just call `nextBuildId.sync({ dir: __dirname })` instead.
 
-- uuid defined in `.next/BUILD_ID`
-- hashes for all chunks defined in `.next/build-stats.json` (Next.js 4 or below)
+## Why?
 
-By default, this CLI/module will overwrite those values with the hash of the latest git commit (`git rev-parse HEAD`), but it will also allow you to define your own id.
+If you're running multiple instances of your app sitting behind a load balancer without session affinity (and you're building your app directly on each production server instead of pre-packaging it), a tool like this is necessary to avoid Next.js errors like ["invalid build file hash"](https://github.com/zeit/next.js/blob/52ccc14059673508803f96ef1c74eecdf27fe096/server/index.js#L444), which happens when the same client (browser code) talks to multiple server backends (Node server) that have different build ids.
 
-If you have `distDir` defined in a `next.config.js` file, it will be respected. Otherwise, this module assumes the Next.js build output is in a relative `.next` directory.
+The build id used by your app is stored on the file system in a `BUILD_ID` text file in your build directory, which is `.next` by default.
 
 ## Install
 
 ```console
-$ npm i --save next-build-id
+$ npm i next-build-id
 ```
 
-## CLI Usage
+## API
 
-Modify your build script to run `next-build-id` after `next build` (only needed for production builds).
-
-For instance, if you have an npm run script in package.json that looks like this:
-
-```json
-{
-  "scripts": {
-    "build": "next build"
-  }
-}
-```
-
-You can change it to this:
-
-```json
-{
-  "scripts": {
-    "build": "next build && next-build-id"
-  }
-}
-```
-
-The above example will use the hash of the latest git commit as the build id. If you'd like to define your own build id, pass it to the CLI using the `--id` flag:
-
-```json
-{
-  "scripts": {
-    "build": "next build && next-build-id --id $MY_CUSTOM_ID"
-  }
-}
-```
-
-If you are building a directory other than the project root, you can pass that as an argument, just like you do with `next build`:
-
-```json
-{
-  "scripts": {
-    "build": "next build client && next-build-id client"
-  }
-}
-```
-
-## Module Usage
-
-This module exports a single function that accepts an options object and returns a `Promise`.
+This module exports two functions, one that is asynchronous (`nextBuildId()` primary export) and one that is synchronous (`nextBuildId.sync()`). Both functions accept a single options object, supporting the same options listed below. Both functions return (or resolve to) a string, representing the git-based build id.
 
 The options supported are:
 
-- `dir` (string): the directory built by `next build`
-- `write` (boolean): whether to overwrite the BUILD_ID in the dist dir (not needed when using `generateBuildId` in next.config.js)
-- `id` (string): define a custom id instead of deferring to `git rev-parse HEAD`
+- `dir` (string, default `process.cwd()`): a directory within the local git repository
 
-The returned `Promise` resolves to a result object containing:
+    Using `__dirname` from your next.config.js module is generally safe. The default value is assumed to be the directory from which you are running the `next build` command, but this may not be correct based on how you build your Next.js app.
 
-- `inputDir` (string): the resolved path of the Next.js app
-- `outputDir` (string): the resolved path of the `next build` output
-- `id` (string): the build id used
-- `files` (array of strings): resolved paths of each file updated with the build id
+- `describe` (boolean, default `false`): use git tag description instead of latest commit sha
 
-Example:
+    Specify this a `true` to use `git describe --tags` instead of `git rev-parse HEAD` for generating the build id. If there are no tags in your local git repository, the latest commit sha will be used instead, unless you also specify `fallbackToSha: false`.
 
-```js
-const nextBuildId = require('next-build-id')
+- `fallbackToSha` (boolean, default `true`): fallback to latest commit sha when `describe: true` and no tags exist
 
-const opts = {}
-// opts.dir = '/path/to/input/dir'
-// opts.write = true
-// opts.id = 'my_custom_id'
+    Only applies when using `describe: true`. If you want to be strict about requiring the use (and presence) of tags, then disable this with `fallbackToSha: false`, in which case an error will be thrown if no tags exist.
 
-nextBuildId(opts).then(result => {
-  console.log('success!')
-  console.log('input dir:', result.inputDir)
-  console.log('output dir:', result.outputDir)
-  console.log('build id:', result.id)
-  console.log('updated files:', result.files)
-}).catch(err => {
-  console.error('you broke it', err)
-})
-```
+Note that this module really provides a generic way to get an id or status string for any local git repository, meaning it is not directly tied to Next.js in any way - it just depends on how you use it.
 
 ## Reference
 
