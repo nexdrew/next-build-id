@@ -104,7 +104,7 @@ const nextBuildId = async opts => {
     const head = await readGitFile(dir, 'HEAD')
     let refi = head.indexOf('ref:')
     if (refi === -1) refi = 0
-    let endi = head.indexOf('\n', refi + 4) + 1
+    const endi = head.indexOf('\n', refi + 4) + 1
     const ref = head.slice(refi + 4, endi || undefined).trim()
     if (ref) {
       id = await readGitFile(dir, ref)
@@ -158,7 +158,7 @@ nextBuildId.sync = opts => {
     const head = readGitFileSync(dir, 'HEAD')
     let refi = head.indexOf('ref:')
     if (refi === -1) refi = 0
-    let endi = head.indexOf('\n', refi + 4) + 1
+    const endi = head.indexOf('\n', refi + 4) + 1
     const ref = head.slice(refi + 4, endi || undefined).trim()
     if (ref) {
       id = readGitFileSync(dir, ref)
