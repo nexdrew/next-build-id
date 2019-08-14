@@ -61,7 +61,7 @@ The options supported are:
 
 - `describe` (boolean, default `false`): use git tag description instead of latest commit sha
 
-    Specify this a `true` to use `git describe --tags` instead of `git rev-parse HEAD` for generating the build id. If there are no tags in your local git repository, the latest commit sha will be used instead, unless you also specify `fallbackToSha: false`.
+    Specify this as `true` to use `git describe --tags` instead of `git rev-parse HEAD` for generating the build id. If there are no tags in your local git repository, the latest commit sha will be used instead, unless you also specify `fallbackToSha: false`.
 
 - `fallbackToSha` (boolean, default `true`): fallback to latest commit sha when `describe: true` and no tags exist
 
