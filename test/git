@@ -9,5 +9,8 @@ require('sywac')
   .outputSettings({ showHelpOnError: false })
   .parseAndExit()
   .then(argv => {
-    console.log(argv._[0] === 'describe' ? 'v2.0.1-12-g0123456' : '0123456789abcdef0123456789abcdef01234567')
+    if (argv._[0] === 'describe') {
+      return process.env.NBI_TEST_F2S_FALSE ? null : console.log('v2.0.1-12-g0123456')
+    }
+    console.log('0123456789abcdef0123456789abcdef01234567')
   })

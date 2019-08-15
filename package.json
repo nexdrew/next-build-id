@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "pretest": "standard",
-    "test": "tap --cov --timeout=180 test/test-next6.js test/test-next7.js test/test-next8.js test/test-next9.js",
+    "test": "tap --cov --timeout=240 test/test-next6.js test/test-next7.js test/test-next8.js test/test-next9.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "release": "standard-version"
   },

@@ -3,6 +3,7 @@ const nextBuildId = require('../../index')
 module.exports = () => {
   const opts = { dir: __dirname }
   if (process.env.NBI_TEST_DESCRIBE) opts.describe = true
+  if (process.env.NBI_TEST_F2S_FALSE) opts.fallbackToSha = false
   return {
     generateBuildId: () => process.env.NBI_TEST_SYNC ? nextBuildId.sync(opts) : nextBuildId(opts)
   }

@@ -57,7 +57,10 @@ tap.test('sync > default', async t => {
 })
 
 tap.test('sync > describe: true', async t => {
-  const io = await exec('npm', 'run build', fixturePath, Object.assign(mockedGitEnv(), { NBI_TEST_DESCRIBE: true, NBI_TEST_SYNC: true }))
+  const io = await exec('npm', 'run build', fixturePath, Object.assign(mockedGitEnv(), {
+    NBI_TEST_DESCRIBE: true,
+    NBI_TEST_SYNC: true
+  }))
   t.notOk(io.err)
   t.notOk(io.stderr)
 
@@ -85,4 +88,45 @@ tap.test('sync > fallback to rev-parse HEAD', async t => {
 
   const buildId = await utils.readTextFile(path.resolve(fixturePath, '.next', 'BUILD_ID'))
   t.equal(buildId, '0123456789abcdef0123456789abcdef01234567') // mocked git output
+})
+
+tap.test('async > no .git dir', async t => {
+  await rmrf(path.resolve(fixturePath, '.git'))
+
+  const io = await exec('npm', 'run build', fixturePath, mockedGitEnv())
+  t.notOk(io.err)
+  t.notOk(io.stderr)
+
+  const buildId = await utils.readTextFile(path.resolve(fixturePath, '.next', 'BUILD_ID'))
+  t.equal(buildId && buildId.length, 40) // latest sha from next-build-id repo
+})
+
+tap.test('sync > no .git dir', async t => {
+  await rmrf(path.resolve(fixturePath, '.git'))
+
+  const io = await exec('npm', 'run build', fixturePath, Object.assign(mockedGitEnv(), { NBI_TEST_SYNC: true }))
+  t.notOk(io.err)
+  t.notOk(io.stderr)
+
+  const buildId = await utils.readTextFile(path.resolve(fixturePath, '.next', 'BUILD_ID'))
+  t.equal(buildId && buildId.length, 40) // latest sha from next-build-id repo
+})
+
+tap.test('async > describe: true, fallbackToSha: false', async t => {
+  const io = await exec('npm', 'run build', fixturePath, Object.assign(mockedGitEnv(), {
+    NBI_TEST_DESCRIBE: true,
+    NBI_TEST_F2S_FALSE: true
+  }), true)
+  t.ok(io.err)
+  t.match(io.stderr, /Output of `git describe --tags` was empty!/)
+})
+
+tap.test('sync > describe: true, fallbackToSha: false', async t => {
+  const io = await exec('npm', 'run build', fixturePath, Object.assign(mockedGitEnv(), {
+    NBI_TEST_DESCRIBE: true,
+    NBI_TEST_F2S_FALSE: true,
+    NBI_TEST_SYNC: true
+  }), true)
+  t.ok(io.err)
+  t.match(io.stderr, /Output of `git describe --tags` was empty!/)
 })
