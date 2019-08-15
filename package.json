@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "pretest": "standard",
-    "test": "tap --cov test/test*.js",
+    "test": "tap --cov --timeout=180 test/test-next6.js test/test-next7.js test/test-next8.js test/test-next9.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "release": "standard-version"
   },
@@ -38,10 +38,11 @@
   "homepage": "https://github.com/nexdrew/next-build-id#readme",
   "dependencies": {},
   "devDependencies": {
-    "coveralls": "^3.0.1",
-    "rimraf": "^2.6.2",
-    "standard": "^13.0.1",
-    "standard-version": "^6.0.1",
-    "tap": "^12.0.1"
+    "coveralls": "^3.0.6",
+    "rimraf": "^3.0.0",
+    "standard": "^13.1.0",
+    "standard-version": "^7.0.0",
+    "sywac": "^1.2.2",
+    "tap": "^14.6.1"
   }
 }

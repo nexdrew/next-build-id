@@ -1,7 +1,7 @@
 {
   "name": "fixture",
   "version": "1.0.0",
-  "description": "Fixture web app, don't worry about it",
+  "description": "Fixture to test against Next.js 9",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "next": "^4.2.3",
-    "react": "^16.3.1",
-    "react-dom": "^16.3.1"
+    "next": "^9.0.3",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
   }
 }
