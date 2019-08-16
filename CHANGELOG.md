@@ -1,6 +1,19 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [3.0.0](https://github.com/nexdrew/next-build-id/compare/v2.0.1...v3.0.0) (2019-08-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* Drops support for Next<6 and Node<8 (now using `async`/`await`), changes return value from object to string (to be more compatible with `generateBuildId`), removes hacky file overwriting and thus the CLI (file overwriting is no longer necessary for modern versions of Next).
+
+See README for further details.
+
+### Features
+
+* add sync function, return string, add describe option, remove cli ([#23](https://github.com/nexdrew/next-build-id/issues/23)) ([5621290](https://github.com/nexdrew/next-build-id/commit/5621290))
 
 <a name="2.0.1"></a>
 ## [2.0.1](https://github.com/nexdrew/next-build-id/compare/v2.0.0...v2.0.1) (2018-05-25)

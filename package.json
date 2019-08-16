@@ -1,6 +1,6 @@
 {
   "name": "next-build-id",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Use a consistent, git-based build id for your Next.js app",
   "main": "index.js",
   "files": [
