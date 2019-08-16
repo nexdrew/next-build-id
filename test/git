@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
 // --git-dir=${inputDir}/.git --work-tree=${inputDir}
+// rev-parse HEAD
+// describe --tags
 require('sywac')
   .dir('--git-dir <dir>', { mustExist: true })
+  .dir('--work-tree <dir>', { mustExist: true })
   .outputSettings({ showHelpOnError: false })
   .parseAndExit()
   .then(argv => {
-    if (!process.env.NBI_TEST_FIXTURE || !String(process.env.NBI_TEST_FIXTURE).includes('fixture3')) {
-      console.log('0123456789abcdef0123456789abcdef01234567')
+    if (argv._[0] === 'describe') {
+      return process.env.NBI_TEST_F2S_FALSE ? null : console.log('v2.0.1-12-g0123456')
     }
+    console.log('0123456789abcdef0123456789abcdef01234567')
   })

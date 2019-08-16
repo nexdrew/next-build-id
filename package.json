@@ -1,21 +1,19 @@
 {
   "name": "next-build-id",
   "version": "2.0.1",
-  "description": "Override `next build` output to use a consistent build id",
+  "description": "Use a consistent, git-based build id for your Next.js app",
   "main": "index.js",
-  "bin": "cli.js",
   "files": [
-    "cli.js",
     "index.js"
   ],
   "scripts": {
     "pretest": "standard",
-    "test": "tap --cov test/test*.js",
+    "test": "tap --cov --timeout=240 test/test-next6.js test/test-next7.js test/test-next8.js test/test-next9.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "release": "standard-version"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=8"
   },
   "repository": {
     "type": "git",
@@ -26,11 +24,11 @@
     "next.js",
     "build",
     "id",
-    "build-stats",
     "BUILD_ID",
-    "fix",
-    "hack",
-    "cli"
+    "git",
+    "head",
+    "describe",
+    "tags"
   ],
   "author": "nexdrew",
   "license": "ISC",
@@ -38,14 +36,13 @@
     "url": "https://github.com/nexdrew/next-build-id/issues"
   },
   "homepage": "https://github.com/nexdrew/next-build-id#readme",
-  "dependencies": {
-    "sywac": "^1.2.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "coveralls": "^3.0.1",
-    "rimraf": "^2.6.2",
-    "standard": "^13.0.1",
-    "standard-version": "^6.0.1",
-    "tap": "^12.0.1"
+    "coveralls": "^3.0.6",
+    "rimraf": "^3.0.0",
+    "standard": "^13.1.0",
+    "standard-version": "^7.0.0",
+    "sywac": "^1.2.2",
+    "tap": "^14.6.1"
   }
 }

@@ -7,7 +7,7 @@ const utils = require('./utils')
 const exec = utils.exec
 const mockedGitEnv = utils.mockedGitEnv
 const rmrf = utils.rmrf
-const fixturePath = path.resolve(__dirname, 'fixture-next6')
+const fixturePath = path.resolve(__dirname, 'fixture-next8')
 
 let npmi = false
 tap.beforeEach(async () => {
@@ -30,7 +30,7 @@ tap.test('async > default', async t => {
   t.notOk(io.stderr)
 
   const buildId = await utils.readTextFile(path.resolve(fixturePath, '.next', 'BUILD_ID'))
-  t.equal(buildId, '0123456789abcdef0123456789abcdef0123fff6') // file system
+  t.equal(buildId, '0123456789abcdef0123456789abcdef0123fff8') // file system
 })
 
 tap.test('async > describe: true', async t => {
@@ -53,7 +53,7 @@ tap.test('sync > default', async t => {
   t.notOk(io.stderr)
 
   const buildId = await utils.readTextFile(path.resolve(fixturePath, '.next', 'BUILD_ID'))
-  t.equal(buildId, '0123456789abcdef0123456789abcdef0123fff6') // file system
+  t.equal(buildId, '0123456789abcdef0123456789abcdef0123fff8') // file system
 })
 
 tap.test('sync > describe: true', async t => {

@@ -4,7 +4,7 @@ const cp = require('child_process')
 const fs = require('fs')
 const path = require('path')
 
-const cliPath = path.resolve(__dirname, '..', 'cli.js')
+const rimraf = require('rimraf')
 
 function exec (file, args, cwd, env, alwaysResolve) {
   // console.error(`\nexec: ${file} ${args}`)
@@ -27,8 +27,13 @@ function mockedGitEnv (env) {
   return Object.assign({}, process.env, env)
 }
 
-function cli (args, cwd, env) {
-  return exec(cliPath, args, cwd, mockedGitEnv(env), true)
+function rmrf (dirOrFile) {
+  return new Promise((resolve, reject) => {
+    rimraf(dirOrFile, err => {
+      if (err) return reject(err)
+      resolve()
+    })
+  })
 }
 
 function readTextFile (file) {
@@ -40,29 +45,18 @@ function readTextFile (file) {
   })
 }
 
-function readJsonFile (file) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(file, 'utf8', (err, data) => {
-      if (err) return reject(err)
-      resolve(JSON.parse(data))
-    })
-  })
-}
-
-function writeTextFile (file, data) {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(file, data, error => {
-      if (error) return reject(error)
-      resolve()
-    })
-  })
-}
+// function writeTextFile (file, data) {
+//   return new Promise((resolve, reject) => {
+//     fs.writeFile(file, data, error => {
+//       if (error) return reject(error)
+//       resolve()
+//     })
+//   })
+// }
 
 module.exports = {
   exec,
   mockedGitEnv,
-  cli,
-  readTextFile,
-  readJsonFile,
-  writeTextFile
+  rmrf,
+  readTextFile
 }
