@@ -40,7 +40,7 @@
   "devDependencies": {
     "coveralls": "^3.0.6",
     "rimraf": "^3.0.0",
-    "standard": "^14.0.0",
+    "standard": "^16.0.2",
     "standard-version": "^7.0.0",
     "sywac": "^1.2.2",
     "tap": "^14.6.1"
