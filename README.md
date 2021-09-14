@@ -10,7 +10,7 @@
 
 Small package to generate a consistent, git-based build id for your Next.js app when running `next build` on each server in a multi-server deployment.
 
-This module exports a function that you can use as your [generateBuildId](https://github.com/zeit/next.js#configuring-the-build-id) config option in next.config.js.
+This module exports a function that you can use as your [generateBuildId](https://nextjs.org/docs/api-reference/next.config.js/configuring-the-build-id) config option in next.config.js.
 
 By default, it will use the latest git commit hash from the local git repository (equivalent of `git rev-parse HEAD`):
 
